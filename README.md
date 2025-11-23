@@ -57,6 +57,11 @@ Thank you for considering contributing to the Laravel framework! The contributio
 
 In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
 
+## How to use this repository
+1. Follow this step by step : https://gist.github.com/harisfi/ec3fae34680c38706cbf3ee978a7172b
+2. Run `php artisan serve` to start the server
+3. The backend server is running now
+
 ## Security Vulnerabilities
 
 If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
