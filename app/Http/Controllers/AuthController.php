@@ -17,9 +17,10 @@ class AuthController extends Controller
     {
         // Validasi input
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
+            'name' => 'string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
+            'nomor_telefon' => 'required|string|max:20',
         ]);
 
         if ($validator->fails()) {
@@ -34,6 +35,7 @@ class AuthController extends Controller
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
+            'nomor_telefon' => $request->nomor_telefon,
             'password' => Hash::make($request->password),
         ]);
 
@@ -48,7 +50,7 @@ class AuthController extends Controller
                 'token' => $token,
                 'token_type' => 'Bearer',
             ]
-        ], 201);
+        ], 200);
     }
 
     /**
