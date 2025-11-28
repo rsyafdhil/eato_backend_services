@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ItemController;
 use App\Http\Controllers\TenantController;
 use Illuminate\Support\Facades\Route;
 
@@ -24,3 +25,8 @@ Route::get('/tenants/edit/{id}', [TenantController::class, 'editPage'])->name('f
 Route::post('/tenants/store', [TenantController::class, 'store'])->name('fe.tenants.store');
 Route::put('/tenants/update/{id}', [TenantController::class, 'update'])->name('fe.tenants.update');
 Route::delete('/tenants/delete/{id}', [TenantController::class, 'destroyFe'])->name('fe.tenants.destroy');
+
+// FE items
+Route::get('/items', [ItemController::class, 'index'])->name('fe.items.index');
+Route::get('/items/create', [ItemController::class, 'create'])->name('fe.items.create');
+Route::post('/items/store', [ItemController::class, 'store'])->name('fe.items.store');
