@@ -38,13 +38,29 @@
 
                     <div class="mb-3">
                         <label class="form-label">Kategori</label>
-                        <input type="number" class="form-control" name="category_item_id">
+                        <select name="category_item_id" class="form-select" required>
+                            <option value="">-- Pilih Kategori --</option>
+                            @foreach ($categories as $cat)
+                                <option value="{{ $cat->id }}">
+                                    {{ $cat->category_name }}
+                                </option>
+                            @endforeach
+                        </select>
                     </div>
 
+                    <!-- SUB CATEGORY DROPDOWN -->
                     <div class="mb-3">
                         <label class="form-label">Sub Kategori</label>
-                        <input type="number" class="form-control" name="sub_category_item_id">
+                        <select name="sub_category_item_id" class="form-select">
+                            <option value="">-- Pilih Sub Kategori --</option>
+                            @foreach ($subCategories as $sub)
+                                <option value="{{ $sub->id }}">
+                                    {{ $sub->sub_category_name }}
+                                </option>
+                            @endforeach
+                        </select>
                     </div>
+
 
                     <div class="mb-3">
                         <label class="form-label">Harga (Rp)</label>

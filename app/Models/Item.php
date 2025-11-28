@@ -18,4 +18,14 @@ class Item extends Model
         'price',
         'preview_image',
     ];
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class, 'category_item_id');
+    }
+
+    public function sub_category()
+    {
+        return $this->belongsTo(SubCategory::class, 'sub_category_item_id');
+    }
 }

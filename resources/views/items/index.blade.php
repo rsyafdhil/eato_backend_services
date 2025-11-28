@@ -56,8 +56,8 @@
                                 <td>{{ $item->item_name }}</td>
                                 <td>{{ $item->description }}</td>
                                 <td>Rp {{ number_format($item->price, 0, ',', '.') }}</td>
-                                <td>{{ $item->category_item_id }}</td>
-                                <td>{{ $item->sub_category_item_id }}</td>
+                                <td>{{ $item->category->category_name ?? '-' }}</td>
+                                <td>{{ $item->sub_category->sub_category_name ?? '-' }}</td>
                             </tr>
                         @endforeach
                     </tbody>
