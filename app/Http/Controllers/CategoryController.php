@@ -38,7 +38,7 @@ class CategoryController extends Controller
             'status' => $request->input('status')
         ]);
 
-        return redirect()->route('fe.category.store')->with('success', 'category created successfully');
+        return redirect()->route('fe.category.index')->with('success', 'category created successfully');
     }
 
     public function edit($id)

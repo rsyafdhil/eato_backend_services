@@ -22,26 +22,23 @@
 
                     <div class="mb-3">
                         <label class="form-label">Nama Kategori</label>
-                        <input type="text" name="category_name"
-                            class="form-control @error('category_name')
-                            is-invalid
-                        @enderror"
-                            value="{{ old('category_nama') }}" required>
-                        @error('category_nama')
+                        <input type="text" name="category_name" id="category_name"
+                            class="form-control @error('category_name') is-invalid @enderror"
+                            value="{{ old('category_name') }}" required>
+                        @error('category_name')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label">Slug</label>
-                        <input type="text" name="slug"
-                            class="form-control @error('slug')
-                        is-invalid
-                        @enderror"
-                            value="{{ old('slug') }}" placeholder="otomatis atau manual" required>
+                        <input type="text" name="slug" id="slug"
+                            class="form-control @error('slug') is-invalid @enderror"
+                            value="{{ old('slug') }}" placeholder="Akan dibuat otomatis" required>
                         @error('slug')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
+                        <small class="text-muted">Slug akan dibuat otomatis dari nama kategori</small>
                     </div>
 
                     <div class="mb-3">
@@ -57,6 +54,20 @@
             </div>
         </div>
     </div>
+
+    <script>
+        // Auto-generate slug from category name
+        document.getElementById('category_name').addEventListener('input', function() {
+            const categoryName = this.value;
+            const slug = categoryName
+                .toLowerCase()
+                .replace(/[^\w\s-]/g, '') // Remove special characters
+                .replace(/\s+/g, '-')      // Replace spaces with hyphens
+                .replace(/-+/g, '-')       // Replace multiple hyphens with single hyphen
+                .trim();
+            document.getElementById('slug').value = slug;
+        });
+    </script>
 
 </body>
 
