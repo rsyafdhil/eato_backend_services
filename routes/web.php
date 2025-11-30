@@ -32,6 +32,8 @@ Route::delete('/tenants/delete/{id}', [TenantController::class, 'destroyFe'])->n
 Route::get('/items', [ItemController::class, 'index'])->name('fe.items.index');
 Route::get('/items/create', [ItemController::class, 'create'])->name('fe.items.create');
 Route::post('/items/store', [ItemController::class, 'store'])->name('fe.items.store');
+Route::get('items/{id}/edit', [ItemController::class, 'edit'])->name('fe.items.edit');
+Route::put('items/{id}/update', [ItemController::class, 'update'])->name('fe.items.update');
 
 //FE Category
 Route::get('/category', [CategoryController::class, 'index'])->name('fe.category.index');
@@ -48,3 +50,4 @@ Route::get('/sub-category/{id}/edit', [CategoryController::class, 'editSubCat'])
 Route::post('/sub-category/store', [CategoryController::class, 'storeSubCat'])->name('fe.subcat.store');
 Route::put('/sub-category/{id}/update', [CategoryController::class, 'updateSubCat'])->name('fe.subcat.update');
 Route::delete('/sub-category/{id}/destroy', [CategoryController::class, 'destroySubCat'])->name('fe.subcat.destroy');
+
