@@ -60,41 +60,79 @@ class ItemController extends Controller
         return redirect()->route('fe.items.index')
             ->with('success', 'Item created successfully');
     }
-    public function edit($id)
-{
-    $item = Item::findOrFail($id);
-    $categories = Category::where('status', 1)->get();
-    $subCategories = SubCategory::where('status', 1)->get();
-    
-    return view('items.edit', compact('item', 'categories', 'subCategories'));
-}
 
-public function update(Request $request, $id)
-{
-    $item = Item::findOrFail($id);
-    
-    $validated = $request->validate([
-        'item_name' => 'required|string|max:255',
-        'description' => 'nullable|string',
-        'slug' => 'required|string|unique:items,slug,' . $id,
-        'category_item_id' => 'required|exists:categories,id',
-        'sub_category_item_id' => 'nullable|exists:sub_categories,id',
-        'price' => 'required|numeric|min:0',
-        'preview_image' => 'nullable|image|mimes:jpeg,jpg,png|max:2048'
-    ]);
+    /**
+     * Display the specified item (API endpoint)
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function show($id)
+    {
+        try {
+            $item = Item::with(['category', 'sub_category'])->findOrFail($id);
 
-    // Handle image upload
-    if ($request->hasFile('preview_image')) {
-        // Delete old image if exists
-        if ($item->preview_image && Storage::exists('public/' . $item->preview_image)) {
-            Storage::delete('public/' . $item->preview_image);
+            // Transform preview_image to full URL if it exists
+            if ($item->preview_image) {
+                $item->preview_image = url('storage/' . $item->preview_image);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Item retrieved successfully',
+                'data' => $item
+            ], 200);
+
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Item not found',
+            ], 404);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error retrieving item',
+                'error' => $e->getMessage()
+            ], 500);
         }
-        
-        $validated['preview_image'] = $request->file('preview_image')->store('items', 'public');
     }
 
-    $item->update($validated);
+    public function edit($id)
+    {
+        $item = Item::findOrFail($id);
+        $categories = Category::where('status', 1)->get();
+        $subCategories = SubCategory::where('status', 1)->get();
+        
+        return view('items.edit', compact('item', 'categories', 'subCategories'));
+    }
 
-    return redirect()->route('fe.items.index')->with('success', 'Item berhasil diupdate');
-}
+    public function update(Request $request, $id)
+    {
+        $item = Item::findOrFail($id);
+        
+        $validated = $request->validate([
+            'item_name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'slug' => 'required|string|unique:items,slug,' . $id,
+            'category_item_id' => 'required|exists:categories,id',
+            'sub_category_item_id' => 'nullable|exists:sub_categories,id',
+            'price' => 'required|numeric|min:0',
+            'preview_image' => 'nullable|image|mimes:jpeg,jpg,png|max:2048'
+        ]);
+
+        // Handle image upload
+        if ($request->hasFile('preview_image')) {
+            // Delete old image if exists
+            if ($item->preview_image && Storage::exists('public/' . $item->preview_image)) {
+                Storage::delete('public/' . $item->preview_image);
+            }
+            
+            $validated['preview_image'] = $request->file('preview_image')->store('items', 'public');
+        }
+
+        $item->update($validated);
+
+        return redirect()->route('fe.items.index')->with('success', 'Item berhasil diupdate');
+    }
 }
