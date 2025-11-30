@@ -23,8 +23,9 @@
 
                     <div class="mb-3">
                         <label class="form-label">Nama Item</label>
-                        <input type="text" id="item_name" class="form-control @error('item_name') is-invalid @enderror" 
-                            name="item_name" value="{{ old('item_name') }}" required>
+                        <input type="text" id="item_name"
+                            class="form-control @error('item_name') is-invalid @enderror" name="item_name"
+                            value="{{ old('item_name') }}" required>
                         @error('item_name')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -32,8 +33,7 @@
 
                     <div class="mb-3">
                         <label class="form-label">Deskripsi</label>
-                        <textarea class="form-control @error('description') is-invalid @enderror" 
-                            name="description" rows="3">{{ old('description') }}</textarea>
+                        <textarea class="form-control @error('description') is-invalid @enderror" name="description" rows="3">{{ old('description') }}</textarea>
                         @error('description')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -41,7 +41,7 @@
 
                     <div class="mb-3">
                         <label class="form-label">Slug</label>
-                        <input type="text" id="slug" class="form-control @error('slug') is-invalid @enderror" 
+                        <input type="text" id="slug" class="form-control @error('slug') is-invalid @enderror"
                             name="slug" value="{{ old('slug') }}" placeholder="Akan dibuat otomatis" required>
                         @error('slug')
                             <div class="invalid-feedback">{{ $message }}</div>
@@ -50,12 +50,30 @@
                     </div>
 
                     <div class="mb-3">
+                        <label class="form-label">Tenant</label>
+                        <select name="tenant_id" id="tenant_id"
+                            class="form-select @error('tenant_id') is-invalid @enderror" required>
+                            <option value="">-- Pilih Tenants --</option>
+                            @foreach ($tenants as $ten)
+                                <option value="{{ $ten->id }}"
+                                    {{ old('tenant_id') == $ten->id ? 'selected' : '' }}>
+                                    {{ $ten->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('tenant_id')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="mb-3">
                         <label class="form-label">Kategori</label>
-                        <select name="category_item_id" id="category_item_id" 
+                        <select name="category_item_id" id="category_item_id"
                             class="form-select @error('category_item_id') is-invalid @enderror" required>
                             <option value="">-- Pilih Kategori --</option>
                             @foreach ($categories as $cat)
-                                <option value="{{ $cat->id }}" {{ old('category_item_id') == $cat->id ? 'selected' : '' }}>
+                                <option value="{{ $cat->id }}"
+                                    {{ old('category_item_id') == $cat->id ? 'selected' : '' }}>
                                     {{ $cat->category_name }}
                                 </option>
                             @endforeach
@@ -68,11 +86,11 @@
                     <!-- SUB CATEGORY DROPDOWN -->
                     <div class="mb-3">
                         <label class="form-label">Sub Kategori</label>
-                        <select name="sub_category_item_id" id="sub_category_item_id" 
+                        <select name="sub_category_item_id" id="sub_category_item_id"
                             class="form-select @error('sub_category_item_id') is-invalid @enderror">
                             <option value="">-- Pilih Sub Kategori --</option>
                             @foreach ($subCategories as $sub)
-                                <option value="{{ $sub->id }}" data-parent="{{ $sub->parent_category_id }}" 
+                                <option value="{{ $sub->id }}" data-parent="{{ $sub->parent_category_id }}"
                                     {{ old('sub_category_item_id') == $sub->id ? 'selected' : '' }}>
                                     {{ $sub->sub_category_name }}
                                 </option>
@@ -85,8 +103,8 @@
 
                     <div class="mb-3">
                         <label class="form-label">Harga (Rp)</label>
-                        <input type="number" class="form-control @error('price') is-invalid @enderror" 
-                            name="price" value="{{ old('price') }}" required>
+                        <input type="number" class="form-control @error('price') is-invalid @enderror" name="price"
+                            value="{{ old('price') }}" required>
                         @error('price')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -94,7 +112,7 @@
 
                     <div class="mb-3">
                         <label class="form-label">Preview Image</label>
-                        <input type="file" class="form-control @error('preview_image') is-invalid @enderror" 
+                        <input type="file" class="form-control @error('preview_image') is-invalid @enderror"
                             name="preview_image" accept="image/*">
                         @error('preview_image')
                             <div class="invalid-feedback">{{ $message }}</div>
@@ -119,8 +137,8 @@
             const slug = itemName
                 .toLowerCase()
                 .replace(/[^\w\s-]/g, '') // Remove special characters
-                .replace(/\s+/g, '-')      // Replace spaces with hyphens
-                .replace(/-+/g, '-')       // Replace multiple hyphens with single hyphen
+                .replace(/\s+/g, '-') // Replace spaces with hyphens
+                .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
                 .trim();
             document.getElementById('slug').value = slug;
         });

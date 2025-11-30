@@ -13,18 +13,14 @@ return new class extends Migration
     {
         Schema::create('order_items', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('order_id');
-            $table->unsignedBigInteger('item_id');
-
-            $table->integer('qty')->default(1);
+            $table->foreignId('order_id')->constrained()->onDelete('cascade');
+            $table->foreignId('item_id')->constrained()->onDelete('cascade');
+            $table->string('item_name');
             $table->integer('price');
-            // price snapshot → harga saat transaksi, walaupun harga item berubah kemudian
+            $table->integer('quantity');
             $table->integer('subtotal');
-            // price * qty
-            $table->timestamps();
 
-            $table->foreign('order_id')->references('id')->on('orders')->onDelete('cascade');
-            $table->foreign('item_id')->references('id')->on('items')->onDelete('cascade');
+            $table->timestamps();
         });
     }
 
