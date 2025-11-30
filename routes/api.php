@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\TenantController;
 use App\Http\Controllers\ItemController;
 use Illuminate\Http\Request;
@@ -38,6 +39,7 @@ Route::middleware(['auth:sanctum', 'role:Admin'])->group(function () {
     Route::delete('/tenants/{id}', [TenantController::class, 'destroy'])->name('tenants.destroy');
 });
 
+<<<<<<< HEAD
 // Item routes
 Route::get('/items', [ItemController::class, 'index']);
 Route::get('/items/{id}', [ItemController::class, 'show']);
@@ -48,3 +50,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/items/{id}', [ItemController::class, 'update']);
     Route::delete('/items/{id}', [ItemController::class, 'destroy']);
 });
+=======
+// Order Route
+Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
+>>>>>>> 82764006e97471ededd4779a5ee5e24195fd802a

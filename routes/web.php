@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ItemController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\TenantController;
 use App\Models\Category;
 use Illuminate\Support\Facades\Route;
@@ -51,3 +52,6 @@ Route::post('/sub-category/store', [CategoryController::class, 'storeSubCat'])->
 Route::put('/sub-category/{id}/update', [CategoryController::class, 'updateSubCat'])->name('fe.subcat.update');
 Route::delete('/sub-category/{id}/destroy', [CategoryController::class, 'destroySubCat'])->name('fe.subcat.destroy');
 
+//FE Orders
+Route::get('/orders', [OrderController::class, 'index'])->name('fe.orders.index');
+Route::get('/orders/{order}', [OrderController::class, 'show'])->name('fe.orders.show');

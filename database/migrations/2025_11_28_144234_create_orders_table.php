@@ -13,13 +13,15 @@ return new class extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
-            $table->string('order_id')->unique(); // untuk Midtrans
-            $table->unsignedBigInteger('user_id')->nullable(); // kalau ada login
-            $table->integer('amount'); // nominal
-            $table->string('payment_type')->default('qris');
-            $table->string('status')->default('pending');
-            // pending | settlement | expire | cancel | deny
-            $table->json('raw_response')->nullable(); // simpan response Midtrans (opsional)
+            $table->foreignId('user_id')->nullable()->constrained()->onDelete('set null');
+            $table->string('order_code')->unique();
+            $table->integer('total_amount');
+            $table->enum('status', ['pending', 'paid', 'failed', 'cancelled'])->default('pending');
+
+            $table->string('payment_method')->nullable(); // qris, midtrans, cash
+            $table->text('payment_url')->nullable();
+            $table->string('snap_token')->nullable();
+
             $table->timestamps();
         });
     }

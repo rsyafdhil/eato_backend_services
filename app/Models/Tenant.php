@@ -15,4 +15,9 @@ class Tenant extends Model
         'description',
         'owner_id',
     ];
+
+    public function items()
+    {
+        return $this->hasMany(Item::class);
+    }
 }
