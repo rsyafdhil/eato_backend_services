@@ -31,7 +31,7 @@
                         <form action="{{ route('fe.tenants.store') }}" method="POST" enctype="multipart/form-data">
                             @csrf
                             <div class="mb-3">
-                                <label for="nama" class="form-label fw-semibold">
+                                <label for="name" class="form-label fw-semibold">
                                     Nama Tenant <span class="text-danger">*</span>
                                 </label>
                                 <input type="text" name="name" id="name"
@@ -40,6 +40,19 @@
                                 @error('name')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="slug" class="form-label fw-semibold">
+                                    Slug <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" name="slug" id="slug"
+                                    class="form-control @error('slug') is-invalid @enderror" value="{{ old('slug') }}"
+                                    placeholder="Akan dibuat otomatis" required>
+                                @error('slug')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                                <div class="form-text">Slug akan dibuat otomatis dari nama tenant</div>
                             </div>
 
                             <div class="mb-3">
@@ -57,10 +70,10 @@
                                 <label for="owner_id" class="form-label fw-semibold">
                                     Pemilik (Owner) <span class="text-danger">*</span>
                                 </label>
-                                <select name="owner_id" id="owner_id" class="form-select" required>
+                                <select name="owner_id" id="owner_id" class="form-select @error('owner_id') is-invalid @enderror" required>
                                     <option value="">-- Pilih Owner --</option>
                                     @foreach ($owners as $owner)
-                                        <option value="{{ $owner->id }}">
+                                        <option value="{{ $owner->id }}" {{ old('owner_id') == $owner->id ? 'selected' : '' }}>
                                             {{ $owner->name }} ({{ $owner->email }})
                                         </option>
                                     @endforeach
@@ -111,6 +124,18 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // Auto-generate slug from tenant name
+        document.getElementById('name').addEventListener('input', function() {
+            const tenantName = this.value;
+            const slug = tenantName
+                .toLowerCase()
+                .replace(/[^\w\s-]/g, '') // Remove special characters
+                .replace(/\s+/g, '-')      // Replace spaces with hyphens
+                .replace(/-+/g, '-')       // Replace multiple hyphens with single hyphen
+                .trim();
+            document.getElementById('slug').value = slug;
+        });
+
         function previewImage(event) {
             const reader = new FileReader();
             reader.onload = function() {
