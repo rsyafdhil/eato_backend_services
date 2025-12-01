@@ -57,6 +57,8 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 });
 
+Route::post('/midtrans/webhook', [MidtransWebhookController::class, 'handle']);
+
     ////////////////////
     /// PUBLIC DATA ///
     ////////////////////
