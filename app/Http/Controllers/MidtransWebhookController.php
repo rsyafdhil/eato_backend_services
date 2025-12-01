@@ -36,15 +36,8 @@ class MidtransWebhookController extends Controller
             // Example: ORD-ABC12345-1630000000
             // We need to remove the last part (timestamp) to get the order_code (ORD-ABC12345)
             
-            $parts = explode('-', $orderId);
-            
-            // If there's only one part, it might be the raw order_code (unlikely given the generation logic, but possible manually)
-            if (count($parts) > 1) {
-                array_pop($parts); // Remove the timestamp/suffix
-                $orderCode = implode('-', $parts);
-            } else {
-                $orderCode = $orderId;
-            }
+            // Use regex to robustly remove the last hyphen followed by digits (timestamp)
+            $orderCode = preg_replace('/-\d+$/', '', $orderId);
 
             $order = Order::where('order_code', $orderCode)->first();
             
