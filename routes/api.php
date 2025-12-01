@@ -51,7 +51,7 @@
     Route::get('/tenants/{tenantId}/items', [ApiController::class, 'getItemsByTenant']);
 
     // Item (public)
-    Route::get('/items', [ItemController::class, 'index']);
+    Route::get('/items', [ItemController::class, 'apiIndex']);
     Route::get('/items/{id}', [ItemController::class, 'show']);
 
     /////////////////////
