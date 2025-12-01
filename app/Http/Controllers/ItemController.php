@@ -98,6 +98,38 @@ class ItemController extends Controller
         }
     }
 
+    /**
+     * Get all items (API endpoint for search)
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function apiIndex()
+    {
+        try {
+            $items = Item::with(['category', 'sub_category'])->get();
+
+            // Transform preview_image to full URL for all items
+            $items->transform(function ($item) {
+                if ($item->preview_image) {
+                    $item->preview_image = url('storage/' . $item->preview_image);
+                }
+                return $item;
+            });
+
+            return response()->json([
+                'success' => true,
+                'data' => $items
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error fetching items',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
     public function edit($id)
     {
         $item = Item::findOrFail($id);

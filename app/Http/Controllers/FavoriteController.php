@@ -40,7 +40,7 @@ public function index($user_id)
                 'tenant_name' => optional($favorite->item->tenant)->name ?? 'Unknown',
             ];
         })->filter(); // Remove null values
-
+        
         return response()->json($items->values()); // Re-index array
     } catch (\Exception $e) {
         \Log::error('Error getting favorites: ' . $e->getMessage());
