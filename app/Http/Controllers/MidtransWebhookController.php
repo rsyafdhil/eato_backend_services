@@ -19,7 +19,13 @@ class MidtransWebhookController extends Controller
             \Midtrans\Config::$isSanitized = true;
             \Midtrans\Config::$is3ds = true;
 
-            $notification = new \Midtrans\Notification();
+            try {
+                $notification = new \Midtrans\Notification();
+                Log::info('Midtrans signature verification succeeded.');
+            } catch (\Exception $e) {
+                Log::warning('Midtrans signature verification failed: ' . $e->getMessage());
+                return response()->json(['message' => 'Signature verification failed'], 401);
+            }
 
             $orderId = $notification->order_id;
             $transactionStatus = $notification->transaction_status;
