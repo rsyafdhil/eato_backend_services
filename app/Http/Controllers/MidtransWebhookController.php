@@ -25,22 +25,26 @@ class MidtransWebhookController extends Controller
             $transactionStatus = $notification->transaction_status;
             $fraudStatus = $notification->fraud_status ?? null;
 
-            // Extract the real order ID from the Midtrans order ID (e.g., "ORDER-123-TIMESTAMP" -> "ORDER-123")
-            // Assuming order_code in DB matches the prefix of Midtrans order_id
-            $orderCode = explode('-', $orderId)[0]; 
+            // Extract the real order ID from the Midtrans order ID
+            // Format in OrderController: $order->order_code . '-' . time();
+            // Example: ORD-ABC12345-1630000000
+            // We need to remove the last part (timestamp) to get the order_code (ORD-ABC12345)
             
-            // Or if the order_code IS the order_id passed to Midtrans:
-            // $order = Order::where('order_code', $orderId)->first();
+            $parts = explode('-', $orderId);
             
-            // Based on previous code: $order = Order::where('order_code', 'like', '%' . explode('-', $orderId)[0] . '%')->first();
-            // This suggests order_code might be just the ID part. Let's try to find it more robustly.
+            // If there's only one part, it might be the raw order_code (unlikely given the generation logic, but possible manually)
+            if (count($parts) > 1) {
+                array_pop($parts); // Remove the timestamp/suffix
+                $orderCode = implode('-', $parts);
+            } else {
+                $orderCode = $orderId;
+            }
+
+            $order = Order::where('order_code', $orderCode)->first();
             
-            $order = Order::where('order_code', $orderId)->first();
-            
+            // Fallback: Try exact match just in case
             if (!$order) {
-                 // Try splitting if direct match fails, assuming format like "CODE-TIMESTAMP"
-                 $possibleOrderCode = explode('-', $orderId)[0];
-                 $order = Order::where('order_code', $possibleOrderCode)->first();
+                 $order = Order::where('order_code', $orderId)->first();
             }
 
             if (!$order) {
