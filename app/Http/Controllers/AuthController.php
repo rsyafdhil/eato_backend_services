@@ -97,6 +97,41 @@ class AuthController extends Controller
         ], 200);
     }
 
+    public function feLogin(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation error',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        // Cari user berdasarkan email
+        $user = User::where('email', $request->email)->first();
+
+        // Cek apakah user ada dan password benar
+        if (!$user || !Hash::check($request->password, $user->password)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'The provided credentials are incorrect.',
+            ], 401);
+        }
+
+        // Generate token
+        $token = $user->createToken('auth_token')->plainTextToken;
+    }
+
+    public function loginPage()
+    {
+        return view('auth.login');
+    }
+
     /**
      * Get data user yang sedang login
      */

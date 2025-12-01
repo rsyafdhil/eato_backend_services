@@ -1,13 +1,14 @@
     <?php
 
-    use App\Http\Controllers\ApiController;
-    use App\Http\Controllers\AuthController;
-    use App\Http\Controllers\OrderController;
-    use App\Http\Controllers\TenantController;
-    use App\Http\Controllers\ItemController;
-    use App\Http\Controllers\FavoriteController;
-    use Illuminate\Http\Request;
-    use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ApiController;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\OrderController;
+use App\Http\Controllers\TenantController;
+use App\Http\Controllers\ItemController;
+use App\Http\Controllers\MidtransWebhookController;
+use App\Http\Controllers\FavoriteController;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 
     /*
     |--------------------------------------------------------------------------
@@ -22,24 +23,39 @@
     Route::post('/login', [AuthController::class, 'login']);
     Route::post('/register', [AuthController::class, 'register']);
 
-    Route::middleware('auth:sanctum')->group(function () {
-        Route::get('/user', [AuthController::class, 'user']);
-        Route::post('/logout', [AuthController::class, 'logout']);
+Route::middleware('auth:sanctum')->group(function () {
 
-        ////////////////////
-        /// ITEM ROUTES ///
-        ////////////////////
+    Route::get('/user', [AuthController::class, 'user']);
+    Route::post('/logout', [AuthController::class, 'logout']);
 
-        Route::post('/items', [ItemController::class, 'store']);
-        Route::put('/items/{id}', [ItemController::class, 'update']);
-        Route::delete('/items/{id}', [ItemController::class, 'destroy']);
+    ////////////////////
+    /// ITEM ROUTES ///
+    ////////////////////
+    Route::post('/items', [ItemController::class, 'store']);
+    Route::put('/items/{id}', [ItemController::class, 'update']);
+    Route::delete('/items/{id}', [ItemController::class, 'destroy']);
 
-        ////////////////////
-        /// ORDER ROUTES //
-        ////////////////////
-        
-        Route::post('/orders', [OrderController::class, 'store']);
+    ////////////////////
+    /// ORDER ROUTES ///
+    ////////////////////
+
+    // Status order global
+    Route::get('/orders/{id}/status', [OrderController::class, 'checkStatus']);
+    Route::get('/user/cred', [OrderController::class, 'getUserCred']);
+
+    // Route untuk user biasa
+    Route::middleware('role:user|admin')->group(function () {
+        Route::get('/orders', [OrderController::class, 'getUserOrders']);
+        Route::get('/orders/{id}', [OrderController::class, 'getOrderDetails']);
+        Route::post('/orders/store', [OrderController::class, 'store'])->name('orders.store');
     });
+
+    // Route untuk merchant
+    Route::middleware('role:owner')->group(function () {
+        Route::get('/merchant/orders', [OrderController::class, 'getMerchantOrders']);
+        Route::patch('/merchant/orders/{orderItemId}/status', [OrderController::class, 'updateStatusItem']);
+    });
+});
 
     ////////////////////
     /// PUBLIC DATA ///

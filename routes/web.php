@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\OrderController;
@@ -55,3 +56,6 @@ Route::delete('/sub-category/{id}/destroy', [CategoryController::class, 'destroy
 //FE Orders
 Route::get('/orders', [OrderController::class, 'index'])->name('fe.orders.index');
 Route::get('/orders/{order}', [OrderController::class, 'show'])->name('fe.orders.show');
+
+Route::get('/login', [AuthController::class, 'loginPage'])->name('fe.login.page');
+Route::post('/login', [AuthController::class, 'login'])->name('fe.login.post');
