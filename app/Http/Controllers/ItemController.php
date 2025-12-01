@@ -119,13 +119,11 @@ class ItemController extends Controller
                 'message' => 'Item retrieved successfully',
                 'data' => $item
             ], 200);
-
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Item not found',
             ], 404);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -157,7 +155,6 @@ class ItemController extends Controller
                 'success' => true,
                 'data' => $items
             ], 200);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
