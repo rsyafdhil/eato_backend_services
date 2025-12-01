@@ -56,14 +56,14 @@ class MidtransWebhookController extends Controller
             if ($transactionStatus == 'capture') {
                 if ($fraudStatus == 'challenge') {
                     $status = 'pending';
-                } else if ($fraudStatus == 'accept') {
+                } elseif ($fraudStatus == 'accept') {
                     $status = 'paid';
                 }
-            } else if ($transactionStatus == 'settlement') {
+            } elseif ($transactionStatus == 'settlement') {
                 $status = 'paid';
-            } else if ($transactionStatus == 'cancel' || $transactionStatus == 'deny' || $transactionStatus == 'expire') {
+            } elseif ($transactionStatus == 'cancel' || $transactionStatus == 'deny' || $transactionStatus == 'expire') {
                 $status = 'cancelled';
-            } else if ($transactionStatus == 'pending') {
+            } elseif ($transactionStatus == 'pending') {
                 $status = 'pending';
             }
 
