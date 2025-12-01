@@ -43,7 +43,7 @@ class MidtransWebhookController extends Controller
             
             // Fallback: Try exact match just in case
             if (!$order) {
-                 $order = Order::where('order_code', $orderId)->first();
+                $order = Order::where('order_code', $orderId)->first();
             }
 
             if (!$order) {
