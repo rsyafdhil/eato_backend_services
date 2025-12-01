@@ -39,7 +39,8 @@ class OrderController extends Controller
                 'order_code' => 'ORD-' . strtoupper(Str::random(8)),
                 'total_amount' => $total,
                 'status' => 'pending',
-                'payment_method' => 'qris'
+                'payment_method' => 'qris',
+                'status_pemesanan' => 'dipesan'
             ]);
 
             // Simpan order items
@@ -101,6 +102,7 @@ class OrderController extends Controller
                     'status' => 'pending',
                     'qr_string' => $qrString
                 ],
+                'order' => $order
             ]);
 
             // dd($qrCodeUrl);
@@ -241,7 +243,7 @@ class OrderController extends Controller
             if (!$merchantId) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Merchant ID not found for this owner'
+                    'message' => 'Tenant ID not found for this owner'
                 ], 403);
             }
 
@@ -298,57 +300,70 @@ class OrderController extends Controller
     }
 
 
-    public function updateStatusPemesanan(Request $request, $id)
+    public function updateStatusPemesanan(Request $request, $orderId)
     {
-        $request->validate([
-            'status_pemesanan' => 'required|in:dipesan,dimasak,diantarkan',
-        ]);
 
-        try {
-            $user = User::with('role')->find(Auth::id());
-            $order = Order::with('order_items.item')->findOrFail($id);
-
-            // Authorization: Hanya owner yang bisa update
-            if (strtolower($user->role->name) !== 'owner') {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Unauthorized',
-                ], 403);
-            }
-
-            // Pastikan order ini berisi item dari merchant owner ini
-            $hasOwnerItems = $order->order_items->contains(function ($orderItem) use ($user) {
-                return $orderItem->item && $orderItem->item->tenant_id === $user->tenant_id;
-            });
-
-            if (!$hasOwnerItems) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'You can only update orders from your merchant',
-                ], 403);
-            }
-
-            $order->update([
-                'status_pemesanan' => $request->status_pemesanan,
-            ]);
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Status pemesanan berhasil diupdate',
-                'data' => [
-                    'order_id' => $order->id,
-                    'order_code' => $order->order_code,
-                    'status_pemesanan' => $order->status_pemesanan,
-                ],
-            ]);
-        } catch (\Exception $e) {
+        if (!Auth::check()) {
             return response()->json([
                 'success' => false,
-                'message' => 'Order tidak ditemukan: ' . $e->getMessage(),
+                'message' => 'Unauthorized'
+            ], 401);
+        }
+
+        dd([
+            'user' => Auth::user(),
+            'role' => Auth::user()->role ?? 'NO ROLE',
+            'role_name' => Auth::user()->role->name ?? 'NO ROLE NAME',
+        ]);
+
+        $user = User::with('role')->find(Auth::id());
+        $roleName = strtolower($user->role->name);
+
+        if ($roleName !== 'owner') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Only owner can update order status'
+            ], 403);
+        }
+
+        // match ENUM database!
+        $request->validate([
+            'status_pemesanan' =>
+            'required|in:dipesan,dimasak,diantarkan,selesai,batal'
+        ]);
+
+        $order = Order::find($orderId);
+
+        if (!$order) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Order not found'
             ], 404);
         }
-    }
 
+        $hasOwnerItem = $order->order_items()->whereHas('item', function ($query) use ($user) {
+            $query->where('tenant_id', $user->tenant_id);
+        })->exists();
+
+        if (!$hasOwnerItem) {
+            return response()->json([
+                'success' => false,
+                'message' => 'You can only update orders from your merchant'
+            ], 403);
+        }
+
+        $order->status_pemesanan = $request->status_pemesanan;
+        $order->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Order status updated successfully',
+            'data' => [
+                'order_id' => $order->id,
+                'status_pemesanan' => $order->status_pemesanan
+            ]
+        ]);
+    }
 
 
     public function updateStatusMerchant(Request $request, $id, $merchantId)

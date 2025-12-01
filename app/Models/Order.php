@@ -14,6 +14,7 @@ class Order extends Model
         'order_code',
         'total_amount',
         'status',
+        'status_pemesanan',
         'payment_method',
         'payment_url',
         'snap_token'
