@@ -53,7 +53,7 @@
         // Route untuk merchant
         Route::middleware('role:owner')->group(function () {
             Route::get('/merchant/orders/{merchantId}', [OrderController::class, 'getMerchantOrders']);
-            Route::put('/orders/{orderId}/update-status', [OrderController::class, 'updateStatusPemesanan']); // ✅ Tambah ini
+            Route::put('/orders/{id}/status-pemesanan', [OrderController::class, 'updateStatusPemesanan']); // ✅ Tambah ini
             Route::patch('/merchant/orders/{orderItemId}/status', [OrderController::class, 'updateStatusItem']);
         });
     });
