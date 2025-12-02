@@ -20,7 +20,8 @@ class OrderController extends Controller
             'user_id' => 'required|integer|exists:users,id',
             'items' => 'required|array',
             'items.*.item_id' => 'required|integer|exists:items,id',
-            'items.*.quantity' => 'required|integer|min:1'
+            'items.*.quantity' => 'required|integer|min:1',
+            'alamat' => 'nullable|string'
         ]);
 
         DB::beginTransaction();
@@ -40,7 +41,8 @@ class OrderController extends Controller
                 'total_amount' => $total,
                 'status' => 'pending',
                 'payment_method' => 'qris',
-                'status_pemesanan' => 'dipesan'
+                'status_pemesanan' => 'dipesan',
+                'alamat' => $request->alamat
             ]);
 
             // Simpan order items
@@ -100,7 +102,8 @@ class OrderController extends Controller
                     'total_amount' => $total,
                     'qr_code_url' => $qrCodeUrl,
                     'status' => 'pending',
-                    'qr_string' => $qrString
+                    'qr_string' => $qrString,
+                    'alamat' => $order->alamat
                 ],
                 'order' => $order
             ]);
@@ -161,7 +164,7 @@ class OrderController extends Controller
         $user = Auth::user();
 
         // Cari order
-        $order = Order::with(['order_items.item'])->find($id);
+        $order = Order::with(['order_items.item', 'user'])->find($id);
 
         if (!$order) {
             return response()->json([
@@ -183,9 +186,13 @@ class OrderController extends Controller
         $orderData = [
             'id' => $order->id,
             'order_code' => $order->order_code,
+            'customer_name' => $order->user->name ?? 'unknown',
+            'customer_email' => $order->user->email ?? '',
+            'customer_phone' => $order->user->nomor_telefon ?? '',
             'user_id' => $order->user_id,
             'status' => $order->status,
             'total_amount' => $order->total_amount,
+            'alamat' => $order->alamat,
             'created_at' => $order->created_at->format('Y-m-d H:i:s'),
             'updated_at' => $order->updated_at->format('Y-m-d H:i:s'),
             'items' => $order->order_items->map(function ($item) {
@@ -222,36 +229,31 @@ class OrderController extends Controller
         }
 
         $user = User::with('role')->find(Auth::id());
-
         $roleName = strtolower($user->role->name);
 
         if ($roleName === 'user') {
-            // User: hanya order miliknya
             $orders = Order::where('user_id', $user->id)
-                ->with(['order_items.item'])
+                ->with(['order_items.item', 'user']) // ✅ Tambahkan 'user'
                 ->orderBy('created_at', 'desc')
                 ->get();
         } elseif ($roleName === 'admin') {
-            // Admin: semua order
-            $orders = Order::with(['order_items.item'])
+            $orders = Order::with(['order_items.item', 'user']) // ✅ Tambahkan 'user'
                 ->orderBy('created_at', 'desc')
                 ->get();
         } elseif ($roleName === 'owner') {
-            // Owner: hanya order yang berisi item dari merchant miliknya
             $merchantId = $user->tenant_id;
 
             if (!$merchantId) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Tenant ID not found for this owner'
+                    'message' => 'Merchant ID not found for this owner'
                 ], 403);
             }
 
-            // Ambil orders yang memiliki items dari merchant ini
             $orders = Order::whereHas('order_items.item', function ($query) use ($merchantId) {
                 $query->where('tenant_id', $merchantId);
             })
-                ->with(['order_items.item'])
+                ->with(['order_items.item', 'user']) // ✅ Tambahkan 'user'
                 ->orderBy('created_at', 'desc')
                 ->get();
         } else {
@@ -263,7 +265,6 @@ class OrderController extends Controller
 
         // Format response
         $formattedOrders = $orders->map(function ($order) use ($roleName, $user) {
-            // Untuk owner, filter hanya items dari merchant mereka
             $items = $order->order_items;
 
             if ($roleName === 'owner') {
@@ -276,6 +277,10 @@ class OrderController extends Controller
                 'id' => $order->id,
                 'order_code' => $order->order_code,
                 'user_id' => $order->user_id,
+                // ✅ Tambahkan info user yang order
+                'customer_name' => $order->user->name ?? 'Unknown',
+                'customer_email' => $order->user->email ?? '',
+                'customer_phone' => $order->user->nomor_telefon ?? '',
                 'status' => $order->status,
                 'status_pemesanan' => $order->status_pemesanan ?? 'dipesan',
                 'total_amount' => $order->total_amount,
@@ -289,12 +294,13 @@ class OrderController extends Controller
                         'price' => $item->price,
                         'subtotal' => $item->subtotal,
                     ];
-                })->values() // Reset array keys
+                })->values()
             ];
         });
 
         return response()->json([
             'success' => true,
+            'user_role' => $roleName,
             'data' => $formattedOrders
         ]);
     }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -31,6 +32,7 @@ class AuthController extends Controller
                 'errors' => $validator->errors()
             ], 422);
         }
+        $roleUser = Role::where('name', 'user')->first();
 
         // Buat user baru
         $user = User::create([
@@ -38,6 +40,7 @@ class AuthController extends Controller
             'email' => $request->email,
             'nomor_telefon' => $request->nomor_telefon,
             'password' => Hash::make($request->password),
+            'role_id' => $roleUser->id
         ]);
 
         // Generate token

@@ -17,7 +17,8 @@ class Order extends Model
         'status_pemesanan',
         'payment_method',
         'payment_url',
-        'snap_token'
+        'snap_token',
+        'alamat'
     ];
 
     public function order_items()
