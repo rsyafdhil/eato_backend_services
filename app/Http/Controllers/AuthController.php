@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
@@ -72,29 +73,27 @@ class AuthController extends Controller
             ], 422);
         }
 
-        // Cari user berdasarkan email
-        $user = User::where('email', $request->email)->first();
+        // ✅ Attempt login
+        $credentials = $request->only('email', 'password');
 
-        // Cek apakah user ada dan password benar
-        if (!$user || !Hash::check($request->password, $user->password)) {
+        if (Auth::attempt($credentials)) {
+            $user = User::with('role')->find(Auth::id()); // ✅ Include role
+            $token = $user->createToken('auth_token')->plainTextToken;
+
             return response()->json([
-                'success' => false,
-                'message' => 'The provided credentials are incorrect.',
-            ], 401);
+                'success' => true,
+                'message' => 'Login successful',
+                'access_token' => $token,
+                'token_type' => 'Bearer',
+                'user' => $user, // ✅ Sudah include role
+            ], 200);
         }
 
-        // Generate token
-        $token = $user->createToken('auth_token')->plainTextToken;
-
+        // ✅ Kalau gagal, return error
         return response()->json([
-            'success' => true,
-            'message' => 'Login successful',
-            'data' => [
-                'user' => $user,
-                'token' => $token,
-                'token_type' => 'Bearer',
-            ]
-        ], 200);
+            'success' => false,
+            'message' => 'The provided credentials are incorrect.',
+        ], 401);
     }
 
     public function feLogin(Request $request)
