@@ -70,6 +70,7 @@
     Route::get('/tenants/{tenantId}/items', [ApiController::class, 'getItemsByTenant']);
 
     // Item (public)
+    Route::get('/top-favorites', [ItemController::class, 'getTopFavoriteItems']);
     Route::get('/items', [ItemController::class, 'apiIndex']);
     Route::get('/items/{id}', [ItemController::class, 'show']);
 

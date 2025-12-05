@@ -8,6 +8,7 @@ use App\Models\Item;
 use App\Models\SubCategory;
 use App\Models\Tenant;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\URL;
 
 class ItemController extends Controller
 {
@@ -160,6 +161,53 @@ class ItemController extends Controller
                 'success' => false,
                 'message' => 'Error fetching items',
                 'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function getTopFavoriteItems()
+    {
+        try {
+            $topItems = Item::query()
+                ->withCount('favorites')
+                ->orderByDesc('favorites_count')
+                ->with('tenant')
+                ->take(4)
+                ->get();
+
+            $transformedItems = $topItems->map(function ($item) {
+                $previewImage = $item->preview_image;
+
+                if ($previewImage && !str_starts_with($previewImage, 'http')) {
+                    // Asumsi penyimpanan di 'public/storage/items'
+                    $filename = basename($previewImage);
+                    $previewImage = URL::to("storage/items/{$filename}");
+                }
+
+                return [
+                    'id' => $item->id,
+                    'item_name' => $item->item_name,
+                    'price' => $item->price,
+                    'preview_image' => $previewImage,
+                    'tenant_id' => $item->tenant_id,
+                    'tenant_name' => optional($item->tenant)->name ?? 'Unknown',
+                    'favorites_count' => $item->favorites_count,
+                ];
+            });
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Top favorite items retrieved successfully',
+                'data' => $transformedItems
+            ], 200);
+        } catch (\Throwable $th) {
+            // PERBAIKAN: Kembalikan proper JSON response
+            \Log::error('Error getting top favorites: ' . $th->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to get top favorite items',
+                'error' => $th->getMessage()
             ], 500);
         }
     }

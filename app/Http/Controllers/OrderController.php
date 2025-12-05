@@ -316,12 +316,6 @@ class OrderController extends Controller
             ], 401);
         }
 
-        // dd([
-        //     'user' => Auth::user(),
-        //     'role' => Auth::user()->role ?? 'NO ROLE',
-        //     'role_name' => Auth::user()->role->name ?? 'NO ROLE NAME',
-        // ]);
-
         $user = User::with('role')->find(Auth::id());
         $roleName = strtolower($user->role->name);
 

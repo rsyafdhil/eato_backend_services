@@ -25,6 +25,11 @@ class Item extends Model
         return $this->belongsTo(Category::class, 'category_item_id');
     }
 
+    public function favorites()
+    {
+        return $this->hasMany(Favorite::class, 'item_id');
+    }
+
     public function sub_category()
     {
         return $this->belongsTo(SubCategory::class, 'sub_category_item_id');
